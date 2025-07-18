@@ -7,7 +7,7 @@
 
 **Monitor your system like a PRO!** 🖥️⚡
 
-*A beautiful, real-time system monitoring dashboard with alerts, historical tracking, and web interface. Perfect for developers who want to keep their systems running at peak performance.*
+_A beautiful, real-time system monitoring dashboard with alerts, historical tracking, and web interface. Perfect for developers who want to keep their systems running at peak performance._
 
 ## ✨ Features
 
@@ -64,30 +64,30 @@ health-check --log --interval 30s
 
 ### Core Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `health-check` | Launch real-time dashboard | `health-check` |
-| `--detailed` | Show comprehensive system info | `health-check --detailed` |
-| `--alert` | Set up monitoring alerts | `health-check --alert --cpu-threshold 85` |
-| `--web` | Launch web dashboard | `health-check --web --port 8080` |
+| Command        | Description                    | Example                                   |
+| -------------- | ------------------------------ | ----------------------------------------- |
+| `health-check` | Launch real-time dashboard     | `health-check`                            |
+| `--detailed`   | Show comprehensive system info | `health-check --detailed`                 |
+| `--alert`      | Set up monitoring alerts       | `health-check --alert --cpu-threshold 85` |
+| `--web`        | Launch web dashboard           | `health-check --web --port 8080`          |
 
 ### Monitoring Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `--log` | Enable data logging | `health-check --log --interval 60s` |
-| `--processes` | Show top processes | `health-check --processes --top 20` |
-| `--network` | Network monitoring mode | `health-check --network --interfaces all` |
-| `--temps` | Temperature monitoring | `health-check --temps --celsius` |
+| Command       | Description             | Example                                   |
+| ------------- | ----------------------- | ----------------------------------------- |
+| `--log`       | Enable data logging     | `health-check --log --interval 60s`       |
+| `--processes` | Show top processes      | `health-check --processes --top 20`       |
+| `--network`   | Network monitoring mode | `health-check --network --interfaces all` |
+| `--temps`     | Temperature monitoring  | `health-check --temps --celsius`          |
 
 ### Analysis Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `--history` | Show historical data | `health-check --history --last-week` |
-| `--report` | Generate system report | `health-check --report --export pdf` |
-| `--benchmark` | Run system benchmark | `health-check --benchmark --quick` |
-| `--health` | System health check | `health-check --health --full-scan` |
+| Command       | Description            | Example                              |
+| ------------- | ---------------------- | ------------------------------------ |
+| `--history`   | Show historical data   | `health-check --history --last-week` |
+| `--report`    | Generate system report | `health-check --report --export pdf` |
+| `--benchmark` | Run system benchmark   | `health-check --benchmark --quick`   |
+| `--health`    | System health check    | `health-check --health --full-scan`  |
 
 ## 🛠️ Advanced Usage
 
@@ -165,6 +165,7 @@ health-check --report --html --interactive-charts
 ## 📊 Sample Output
 
 ### Real-Time Dashboard
+
 ```
 ╭─────────────────────────────────────────────────────────────────────────────────╮
 │                           🖥️  System Health Dashboard                           │
@@ -199,6 +200,7 @@ Last updated: 2024-01-15 14:30:25 | Press 'q' to quit, 'r' to refresh, 'h' for h
 ```
 
 ### System Health Report
+
 ```
 📊 System Health Report - Generated 2024-01-15 14:30:25
 
@@ -232,39 +234,39 @@ Configuration is stored at `~/.config/health-dashboard/config.json`:
 
 ```json
 {
-    "refresh_interval": 2,
-    "theme": "dark",
-    "layout": "full",
-    "alerts": {
-        "cpu_threshold": 80,
-        "ram_threshold": 85,
-        "disk_threshold": 90,
-        "temp_threshold": 75,
-        "load_threshold": 4.0,
-        "desktop_notifications": true,
-        "sound_alerts": false,
-        "email_notifications": false
-    },
-    "web_dashboard": {
-        "port": 8080,
-        "host": "localhost",
-        "ssl": false,
-        "auth": false
-    },
-    "logging": {
-        "enabled": false,
-        "interval": 60,
-        "retention_days": 30,
-        "log_path": "~/.local/share/health-dashboard/logs/"
-    },
-    "display": {
-        "show_processes": true,
-        "process_count": 10,
-        "show_network": true,
-        "show_temperatures": true,
-        "show_disk_io": true,
-        "colored_output": true
-    }
+  "refresh_interval": 2,
+  "theme": "dark",
+  "layout": "full",
+  "alerts": {
+    "cpu_threshold": 80,
+    "ram_threshold": 85,
+    "disk_threshold": 90,
+    "temp_threshold": 75,
+    "load_threshold": 4.0,
+    "desktop_notifications": true,
+    "sound_alerts": false,
+    "email_notifications": false
+  },
+  "web_dashboard": {
+    "port": 8080,
+    "host": "localhost",
+    "ssl": false,
+    "auth": false
+  },
+  "logging": {
+    "enabled": false,
+    "interval": 60,
+    "retention_days": 30,
+    "log_path": "~/.local/share/health-dashboard/logs/"
+  },
+  "display": {
+    "show_processes": true,
+    "process_count": 10,
+    "show_network": true,
+    "show_temperatures": true,
+    "show_disk_io": true,
+    "colored_output": true
+  }
 }
 ```
 
@@ -275,6 +277,7 @@ Configuration is stored at `~/.config/health-dashboard/config.json`:
 - **Linux/macOS/Windows** (optimized for Linux)
 
 ### Dependencies
+
 ```
 psutil>=5.8.0          # System information
 rich>=12.0.0           # Beautiful terminal output
@@ -287,6 +290,7 @@ pynvml>=11.0.0         # NVIDIA GPU monitoring
 ```
 
 ### Optional Dependencies
+
 ```
 # For advanced features
 nvidia-ml-py3          # NVIDIA GPU detailed stats
@@ -297,6 +301,7 @@ distro                # Linux distribution detection
 ## 🌡️ Temperature Monitoring
 
 ### Supported Sensors
+
 - **CPU**: Core temperatures via thermal zones
 - **GPU**: NVIDIA (via nvidia-ml) and AMD (via sysfs)
 - **Motherboard**: System sensors via lm-sensors
@@ -304,6 +309,7 @@ distro                # Linux distribution detection
 - **Custom**: User-defined sensor paths
 
 ### Thermal Management
+
 - **Throttling Detection**: Automatic detection of thermal throttling
 - **Fan Control**: Integration with system fan controls
 - **Alerts**: Temperature-based warnings and critical alerts
@@ -312,6 +318,7 @@ distro                # Linux distribution detection
 ## 🌐 Web Dashboard
 
 ### Features
+
 - **Real-time Updates**: WebSocket-based live data
 - **Interactive Charts**: Plotly-powered visualizations
 - **Mobile Responsive**: Works on phones and tablets
@@ -319,6 +326,7 @@ distro                # Linux distribution detection
 - **Multi-system**: Monitor multiple systems from one dashboard
 
 ### API Endpoints
+
 ```
 GET /api/system          # Current system stats
 GET /api/processes       # Running processes
@@ -330,12 +338,14 @@ POST /api/alerts/config  # Update alert configuration
 ## 🚀 Performance Optimization
 
 ### CachyOS Specific Features
+
 - **Kernel Optimization Detection**: Detects CachyOS performance kernels
 - **CPU Governor Monitoring**: Tracks performance/powersave modes
 - **Memory Optimization**: CachyOS-specific memory tuning detection
 - **I/O Scheduler**: Monitors and suggests optimal I/O schedulers
 
 ### System Tuning Suggestions
+
 - **CPU Frequency Scaling**: Recommendations for performance
 - **Memory Management**: Swap and cache optimization tips
 - **Disk Performance**: I/O scheduler and mount option suggestions
@@ -344,6 +354,7 @@ POST /api/alerts/config  # Update alert configuration
 ## 🛠️ Development
 
 ### Manual Installation
+
 ```bash
 # Create virtual environment
 python3 -m venv venv
@@ -357,6 +368,7 @@ python3 health_dashboard.py --help
 ```
 
 ### Project Structure
+
 ```
 system-health-dashboard/
 ├── health_dashboard.py       # Main application
@@ -398,7 +410,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - 🐛 **Bug Reports**: [Open an issue](https://github.com/LinuxCTRL/system-health-dashboard/issues)
 - 💡 **Feature Requests**: [Start a discussion](https://github.com/LinuxCTRL/system-health-dashboard/discussions)
-- 📧 **Contact**: [your.email@example.com](mailto:your.email@example.com)
+- 📧 **Contact**: [sofalcons@outlook.com](mailto:sofalcons@outlook.com)
 
 ---
 
@@ -406,6 +418,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ by LinuxCTRL - Controlling the world through better developer tools!** 🌍💪
 
-*Part of the LinuxCTRL Developer Toolkit - Building tools that developers actually want to use.*
+_Part of the LinuxCTRL Developer Toolkit - Building tools that developers actually want to use._
 
 **Optimized for CachyOS and performance enthusiasts!** 🐧⚡

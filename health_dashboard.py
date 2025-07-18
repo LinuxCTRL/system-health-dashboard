@@ -15,6 +15,8 @@ import psutil
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
+from rich.live import Live
+from rich.layout import Layout
 
 # Initialize rich console
 console = Console()
@@ -43,10 +45,6 @@ class SystemMonitor:
                 "cpu_threshold": 80,
                 "ram_threshold": 85,
                 "disk_threshold": 90
-            },
-            "display": {
-                "show_processes": True,
-                "process_count": 10
             }
         }
         
@@ -181,6 +179,21 @@ class SystemMonitor:
         
         processes.sort(key=lambda x: x['cpu_percent'], reverse=True)
         return processes[:limit]
+    
+    def create_progress_bar(self, percentage, width=30):
+        """Create a visual progress bar"""
+        filled = int(width * percentage / 100)
+        bar = "#" * filled + "-" * (width - filled)
+        
+        # Color based on percentage
+        if percentage < 50:
+            color = "green"
+        elif percentage < 80:
+            color = "yellow"
+        else:
+            color = "red"
+            
+        return f"[{color}]{bar}[/{color}] {percentage:.1f}%"
 
 # Initialize the monitor instance
 monitor = SystemMonitor()
@@ -195,72 +208,128 @@ def cli():
 @click.option('--detailed', is_flag=True, help='Show detailed system information')
 @click.option('--refresh', default='2s', help='Refresh interval')
 def dashboard(detailed, refresh):
-    """Launch real-time system dashboard"""
+    """Launch real-time system dashboard with smooth updates"""
     
-    console.print(Panel.fit("System Health Dashboard v1.0.0", style="bold blue"))
+    def generate_dashboard():
+        """Generate the dashboard layout"""
+        # Header
+        header = "System Health Dashboard"
+        if monitor.system_info['is_cachyos']:
+            header += " - CachyOS Linux"
+        
+        # Create main layout
+        layout = Layout()
+        layout.split_column(
+            Layout(Panel.fit(header, style="bold blue"), name="header", size=3),
+            Layout(name="main"),
+            Layout(name="footer", size=3)
+        )
+        
+        # Split main into sections
+        if detailed:
+            layout["main"].split_column(
+                Layout(name="cpu_memory"),
+                Layout(name="disk"),
+                Layout(name="processes")
+            )
+        else:
+            layout["main"].split_column(
+                Layout(name="cpu_memory"),
+                Layout(name="disk")
+            )
+        
+        # Get all system info
+        cpu_info = monitor.get_cpu_info()
+        memory_info = monitor.get_memory_info()
+        disk_info = monitor.get_disk_info()
+        
+        # CPU and Memory section
+        cpu_memory_table = Table.grid(padding=2)
+        cpu_memory_table.add_column()
+        cpu_memory_table.add_column()
+        
+        # CPU section
+        cpu_section = Table(title="CPU Usage", border_style="blue")
+        cpu_section.add_column("Metric", style="cyan")
+        cpu_section.add_column("Value", style="green")
+        
+        cpu_section.add_row("Usage", monitor.create_progress_bar(cpu_info['usage_percent']))
+        cpu_section.add_row("Cores", f"{cpu_info['core_count']}")
+        cpu_section.add_row("Frequency", f"{cpu_info['frequency']:.0f} MHz")
+        cpu_section.add_row("Load", f"{cpu_info['load_avg'][0]:.2f}")
+        
+        # Memory section
+        memory_section = Table(title="Memory Usage", border_style="blue")
+        memory_section.add_column("Metric", style="cyan")
+        memory_section.add_column("Value", style="green")
+        
+        memory_section.add_row("Usage", monitor.create_progress_bar(memory_info['percent']))
+        memory_section.add_row("Used", f"{monitor.format_bytes(memory_info['used'])}")
+        memory_section.add_row("Free", f"{monitor.format_bytes(memory_info['free'])}")
+        memory_section.add_row("Total", f"{monitor.format_bytes(memory_info['total'])}")
+        
+        cpu_memory_table.add_row(cpu_section, memory_section)
+        layout["cpu_memory"].update(cpu_memory_table)
+        
+        # Disk section
+        disk_section = Table(title="Disk Usage", border_style="blue")
+        disk_section.add_column("Mount", style="cyan")
+        disk_section.add_column("Usage", style="green")
+        disk_section.add_column("Free", style="yellow")
+        
+        for disk in disk_info[:3]:
+            disk_section.add_row(
+                disk['mountpoint'],
+                monitor.create_progress_bar(disk['percent']),
+                monitor.format_bytes(disk['free'])
+            )
+        
+        layout["disk"].update(disk_section)
+        
+        # Top Processes section (if detailed)
+        if detailed:
+            processes = monitor.get_top_processes(5)
+            proc_table = Table(title="Top Processes", border_style="blue")
+            proc_table.add_column("PID", style="cyan")
+            proc_table.add_column("Name", style="green")
+            proc_table.add_column("CPU%", style="yellow")
+            proc_table.add_column("RAM%", style="red")
+            
+            for proc in processes:
+                proc_table.add_row(
+                    str(proc['pid']),
+                    proc['name'][:15],
+                    f"{proc['cpu_percent']:.1f}",
+                    f"{proc['memory_percent']:.1f}"
+                )
+            
+            layout["processes"].update(proc_table)
+        
+        # Footer with alerts and info
+        uptime = monitor.format_uptime(monitor.system_info['boot_time'])
+        load_avg = cpu_info['load_avg'][0]
+        
+        # Check for alerts
+        alerts = []
+        if cpu_info['usage_percent'] > 80:
+            alerts.append(f"CPU usage high ({cpu_info['usage_percent']:.1f}% > 80%)")
+        if memory_info['percent'] > 85:
+            alerts.append(f"Memory usage high ({memory_info['percent']:.1f}% > 85%)")
+        
+        alert_text = " | ".join(alerts) if alerts else "All systems normal"
+        footer_text = f"Alerts: {alert_text} | Uptime: {uptime} | Load: {load_avg:.1f} | Updated: {datetime.now().strftime('%H:%M:%S')} | Press Ctrl+C to exit"
+        
+        layout["footer"].update(Panel(footer_text, style="dim"))
+        
+        return layout
     
-    if monitor.system_info['is_cachyos']:
-        console.print("[bold green]CachyOS Performance System Detected![/bold green]")
-    
+    # Use Live display for smooth updates
     try:
-        while True:
-            console.clear()
-            
-            # Get current stats
-            cpu_info = monitor.get_cpu_info()
-            memory_info = monitor.get_memory_info()
-            disk_info = monitor.get_disk_info()
-            
-            # Create main table
-            table = Table(title="System Status")
-            table.add_column("Component", style="cyan")
-            table.add_column("Usage", style="green")
-            table.add_column("Details", style="yellow")
-            
-            # CPU row
-            cpu_details = f"Freq: {cpu_info['frequency']:.0f}MHz | Cores: {cpu_info['core_count']}"
-            table.add_row("CPU", f"{cpu_info['usage_percent']:.1f}%", cpu_details)
-            
-            # Memory row
-            mem_details = f"Used: {monitor.format_bytes(memory_info['used'])} / {monitor.format_bytes(memory_info['total'])}"
-            table.add_row("Memory", f"{memory_info['percent']:.1f}%", mem_details)
-            
-            # Disk rows
-            for disk in disk_info[:3]:
-                disk_details = f"Free: {monitor.format_bytes(disk['free'])}"
-                table.add_row(f"Disk ({disk['mountpoint']})", f"{disk['percent']:.1f}%", disk_details)
-            
-            console.print(table)
-            
-            # Show top processes if detailed
-            if detailed:
-                processes = monitor.get_top_processes(5)
-                proc_table = Table(title="Top Processes")
-                proc_table.add_column("PID", style="cyan")
-                proc_table.add_column("Name", style="green")
-                proc_table.add_column("CPU%", style="yellow")
-                proc_table.add_column("Memory%", style="red")
+        with Live(generate_dashboard(), refresh_per_second=0.5, screen=True) as live:
+            while True:
+                time.sleep(2)
+                live.update(generate_dashboard())
                 
-                for proc in processes:
-                    proc_table.add_row(
-                        str(proc['pid']),
-                        proc['name'][:20],
-                        f"{proc['cpu_percent']:.1f}",
-                        f"{proc['memory_percent']:.1f}"
-                    )
-                
-                console.print(proc_table)
-            
-            # Show system info
-            uptime = monitor.format_uptime(monitor.system_info['boot_time'])
-            load_avg = cpu_info['load_avg'][0]
-            info_text = f"Uptime: {uptime} | Load: {load_avg:.2f}"
-            
-            console.print(f"\n[dim]{info_text}[/dim]")
-            console.print("[dim]Press Ctrl+C to exit[/dim]")
-            
-            time.sleep(2)
-            
     except KeyboardInterrupt:
         console.print("\n[yellow]Dashboard stopped[/yellow]")
 
