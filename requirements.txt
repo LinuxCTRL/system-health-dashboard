@@ -1,0 +1,12 @@
+psutil
+rich
+click
+flask
+plotly
+schedule
+requests
+colorama
+tabulate
+websockets
+pynvml
+distro
